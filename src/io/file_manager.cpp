@@ -1,3 +1,14 @@
+/**
+ * @file file_manager.cpp
+ * @author Vrutik Halani
+ * @brief Implements the IFileManager interface for file I/O operations.
+ *
+ * This file contains the implementation of the IFileManager interface, which
+ * provides a platform-independent way to perform file I/O operations. The
+ * implementation uses platform-specific APIs for file I/O, and C++17
+ * <filesystem> for path operations.
+ */
+
 #include "VrootKV/io/file_manager.h"
 
 #include <filesystem>

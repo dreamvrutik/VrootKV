@@ -1,3 +1,14 @@
+/**
+ * @file wal_format.h
+ * @author Vrutik Halani
+ * @brief Defines the on-disk format of the Write-Ahead Log (WAL).
+ *
+ * This file contains the definitions for the structures and functions that are
+ * used to serialize and deserialize WAL records. The WAL is a log of all
+ * database operations, and it is used to ensure that the database can be
+ * recovered to a consistent state in the event of a crash.
+ */
+
 #pragma once
 #include <cstdint>
 #include <cstring>

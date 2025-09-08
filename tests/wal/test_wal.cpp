@@ -1,3 +1,13 @@
+/**
+ * @file test_wal.cpp
+ * @author Vrutik Halani
+ * @brief Unit tests for the Write-Ahead Log (WAL) implementation.
+ *
+ * This file contains unit tests for the WAL implementation. The tests cover
+ * the serialization and deserialization of WAL records, as well as the
+ * detection of corruption in the WAL.
+ */
+
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>

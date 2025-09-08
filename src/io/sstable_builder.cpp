@@ -1,3 +1,15 @@
+/**
+ * @file sstable_builder.cpp
+ * @author Vrutik Halani
+ * @brief Implements the builders for data and index blocks in an SSTable.
+ *
+ * This file contains the implementation of the DataBlockBuilder and
+ * IndexBlockBuilder classes, which are used to build data and index blocks in
+ * an SSTable. The DataBlockBuilder is used to build data blocks, which contain
+ * the actual key-value pairs. The IndexBlockBuilder is used to build index
+ * blocks, which contain a mapping from keys to block handles.
+ */
+
 #include <algorithm>
 #include <cstdint>
 #include <cstring>

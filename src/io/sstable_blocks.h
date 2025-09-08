@@ -1,3 +1,15 @@
+/**
+ * @file sstable_blocks.h
+ * @author Vrutik Halani
+ * @brief Defines the builders and readers for data and index blocks in an SSTable.
+ *
+ * This file contains the definitions for the classes that are used to build and
+ * read data and index blocks in an SSTable. The DataBlockBuilder and
+ * DataBlockReader classes are used for data blocks, which contain the actual
+ * key-value pairs. The IndexBlockBuilder and IndexBlockReader classes are used
+ * for index blocks, which contain a mapping from keys to block handles.
+ */
+
 #pragma once
 #include <cstddef>
 #include <cstdint>

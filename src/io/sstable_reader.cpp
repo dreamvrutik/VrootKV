@@ -1,3 +1,15 @@
+/**
+ * @file sstable_reader.cpp
+ * @author Vrutik Halani
+ * @brief Implements the readers for data and index blocks in an SSTable.
+ *
+ * This file contains the implementation of the DataBlockReader and
+ * IndexBlockReader classes, which are used to read data and index blocks in an
+ * SSTable. The DataBlockReader is used to read key-value pairs from data
+ * blocks, and the IndexBlockReader is used to find the block handle for a given
+ * key in an index block.
+ */
+
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
@@ -41,6 +53,7 @@ DataBlockReader::DataBlockReader(std::string_view block)
     : full_(block) {
     if (block.size() < 4) throw std::runtime_error("DataBlockReader: block too small");
     uint32_t num_restarts = detail::DecodeFixed32(block.data() + block.size() - 4);
+    if (num_restarts > block.size() / 4) throw std::runtime_error("DataBlockReader: corrupt");
     size_t rest_bytes = static_cast<size_t>(num_restarts) * 4;
     if (block.size() < 4 + rest_bytes) throw std::runtime_error("DataBlockReader: corrupt");
     restarts_.assign(num_restarts, 0);
@@ -116,12 +129,21 @@ IndexBlockReader::IndexBlockReader(std::string_view block)
     : full_(block) {
     if (full_.size() < 4) throw std::runtime_error("IndexBlockReader: block too small");
     uint32_t num = detail::DecodeFixed32(full_.data() + full_.size() - 4);
+    if (num > full_.size() / 4) throw std::runtime_error("IndexBlockReader: corrupt");
     size_t off_bytes = static_cast<size_t>(num) * 4;
     if (full_.size() < 4 + off_bytes) throw std::runtime_error("IndexBlockReader: corrupt");
     num_ = num;
     const char* p = full_.data() + full_.size() - 4 - off_bytes;
     offsets_.assign(num_, 0);
-    for (uint32_t i = 0; i < num_; ++i) offsets_[i] = detail::DecodeFixed32(p + i*4);
+    for (uint32_t i = 0; i < num_; ++i) {
+        offsets_[i] = detail::DecodeFixed32(p + i*4);
+        if (i > 0 && offsets_[i] < offsets_[i-1]) {
+            throw std::runtime_error("IndexBlockReader: corrupt offsets");
+        }
+        if (offsets_[i] > full_.size() - 4 - off_bytes) {
+            throw std::runtime_error("IndexBlockReader: corrupt offsets");
+        }
+    }
     entries_ = full_.substr(0, full_.size() - 4 - off_bytes);
 }
 

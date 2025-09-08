@@ -1,3 +1,12 @@
+/**
+ * @file test_file_manager.cpp
+ * @author Vrutik Halani
+ * @brief Unit tests for the IFileManager implementation.
+ *
+ * This file contains unit tests for the IFileManager implementation. The tests
+ * cover file existence, deletion, renaming, writing, and reading.
+ */
+
 #include "VrootKV/io/file_manager.h"
 #include <gtest/gtest.h>
 #include <filesystem>
@@ -134,6 +143,41 @@ TEST_F(FileManagerTest, ReadFileInChunks) {
 
     // Subsequent read should return 0 (EOF).
     EXPECT_EQ(readable_file->Read(4, &chunk3), 0);
+}
+
+TEST_F(FileManagerTest, NewReadableFile_NonExistent) {
+    const std::string filename = TestPath("non_existent.txt");
+    std::unique_ptr<IReadableFile> readable_file;
+    EXPECT_FALSE(file_manager_->NewReadableFile(filename, readable_file));
+}
+
+TEST_F(FileManagerTest, DeleteFile_NonExistent) {
+    const std::string filename = TestPath("non_existent.txt");
+    EXPECT_TRUE(file_manager_->DeleteFile(filename));
+}
+
+TEST_F(FileManagerTest, RenameFile_NonExistent) {
+    const std::string src_name = TestPath("non_existent.txt");
+    const std::string target_name = TestPath("target.txt");
+    EXPECT_FALSE(file_manager_->RenameFile(src_name, target_name));
+}
+
+TEST_F(FileManagerTest, Write_AfterClose) {
+    const std::string filename = TestPath("test_write_after_close.txt");
+    std::unique_ptr<IWritableFile> writable_file;
+    ASSERT_TRUE(file_manager_->NewWritableFile(filename, writable_file));
+    ASSERT_TRUE(writable_file->Close());
+    EXPECT_FALSE(writable_file->Write("test"));
+}
+
+TEST_F(FileManagerTest, Read_AfterClose) {
+    const std::string filename = TestPath("test_read_after_close.txt");
+    std::ofstream(filename) << "test";
+    std::unique_ptr<IReadableFile> readable_file;
+    ASSERT_TRUE(file_manager_->NewReadableFile(filename, readable_file));
+    ASSERT_TRUE(readable_file->Close());
+    std::string result;
+    EXPECT_EQ(readable_file->Read(4, &result), 0);
 }
 
 } // namespace VrootKV::io

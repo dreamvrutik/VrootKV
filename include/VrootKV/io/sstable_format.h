@@ -1,3 +1,15 @@
+/**
+ * @file sstable_format.h
+ * @author Vrutik Halani
+ * @brief Defines the on-disk format of SSTable files.
+ *
+ * This file contains the definitions for the structures that represent the
+ * on-disk format of SSTable files. This includes the BlockHandle, which is a
+ * pointer to a block within the file, and the SSTableFooter, which is a
+ * fixed-size structure at the end of the file that contains pointers to the
+ * filter and index blocks.
+ */
+
 #pragma once
 #include <cstdint>
 #include <cstring>

@@ -1,3 +1,13 @@
+/**
+ * @file test_sstable.cpp
+ * @author Vrutik Halani
+ * @brief Unit tests for the SSTable implementation.
+ *
+ * This file contains unit tests for the SSTable implementation. The tests cover
+ * the BlockHandle, SSTableFooter, DataBlockBuilder, DataBlockReader,
+ * IndexBlockBuilder, and IndexBlockReader classes.
+ */
+
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
@@ -173,4 +183,56 @@ TEST(SSTableBlocks, EndToEnd_Lookup_Through_Index) {
     EXPECT_EQ(fetch("aaa"), "");        // before first
     EXPECT_EQ(fetch("blueberry"), "");  // between
     EXPECT_EQ(fetch("zzz"), "");        // after last
+}
+
+TEST(SSTableBlocks, DataBlockBuilder_Add_OutOfOrder) {
+    DataBlockBuilder b;
+    b.Add("a", "1");
+    EXPECT_THROW(b.Add("a", "2"), std::runtime_error);
+}
+
+TEST(SSTableBlocks, DataBlockBuilder_Add_AfterFinish) {
+    DataBlockBuilder b;
+    b.Add("a", "1");
+    b.Finish();
+    EXPECT_THROW(b.Add("b", "2"), std::runtime_error);
+}
+
+TEST(SSTableBlocks, DataBlockReader_Corrupt_TooSmall) {
+    std::string block = "abc";
+    EXPECT_THROW(DataBlockReader r(block), std::runtime_error);
+}
+
+TEST(SSTableBlocks, DataBlockReader_Corrupt_BadRestarts) {
+    DataBlockBuilder b;
+    b.Add("a", "1");
+    std::string block = b.Finish();
+    block.resize(block.size() - 5);
+    EXPECT_THROW(DataBlockReader r(block), std::runtime_error);
+}
+
+TEST(SSTableBlocks, IndexBlockBuilder_Add_OutOfOrder) {
+    IndexBlockBuilder ib;
+    BlockHandle h{0, 0};
+    ib.Add("b", h);
+    EXPECT_THROW(ib.Add("a", h), std::runtime_error);
+}
+
+TEST(SSTableBlocks, IndexBlockReader_Corrupt_TooSmall) {
+    std::string block = "abc";
+    EXPECT_THROW(IndexBlockReader r(block), std::runtime_error);
+}
+
+TEST(SSTableBlocks, IndexBlockReader_Corrupt_BadOffsets) {
+    std::string block;
+    // Add a fake entry
+    block.append("a");
+    // Add a fake offset
+    uint32_t offset = 0;
+    block.append(reinterpret_cast<char*>(&offset), sizeof(offset));
+    // Add a corrupted number of offsets
+    uint32_t num_offsets = 1000; // A large number that will fail the check
+    block.append(reinterpret_cast<char*>(&num_offsets), sizeof(num_offsets));
+
+    EXPECT_THROW(IndexBlockReader r(block), std::runtime_error);
 }

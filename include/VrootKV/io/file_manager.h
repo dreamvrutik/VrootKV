@@ -1,3 +1,13 @@
+/**
+ * @file file_manager.h
+ * @author Vrutik Halani
+ * @brief Defines the interfaces for file I/O operations.
+ *
+ * This file contains the definitions for the interfaces that are used for file
+ * I/O operations. This includes interfaces for writable files, readable files,
+ * and a file manager that can be used to create, delete, and manipulate files.
+ */
+
 #pragma once
 
 #include <memory>

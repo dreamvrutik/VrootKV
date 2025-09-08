@@ -16,7 +16,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 # Gather all test source files into a list.
-file(GLOB_RECURSE TEST_SOURCES "*.cpp")
+file(GLOB_RECURSE TEST_SOURCES "io/*.cpp" "wal/*.cpp")
 
 # Define the test executable.
 add_executable(run_tests ${TEST_SOURCES})
