@@ -43,7 +43,7 @@ public:
         if (handle_ == INVALID_HANDLE_VALUE) return false;
         DWORD bytes_written;
         return WriteFile(handle_, data.data(), static_cast<DWORD>(data.size()), &bytes_written, nullptr) &&
-               bytes_written == data.size();
+                bytes_written == data.size();
     }
 
     bool Flush() override {

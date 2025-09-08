@@ -21,6 +21,10 @@ file(GLOB_RECURSE TEST_SOURCES "*.cpp")
 # Define the test executable.
 add_executable(run_tests ${TEST_SOURCES})
 
+# Add the project root to the include path. This allows includes like "src/..."
+target_include_directories(run_tests PRIVATE ${CMAKE_SOURCE_DIR})
+
+
 # Link the test executable against our main library and Google Test.
 # Linking to VrootKV transitively adds the necessary include directories
 # specified as PUBLIC in the VrootKV target.

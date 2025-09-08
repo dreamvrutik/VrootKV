@@ -3,6 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
+                "${workspaceFolder}",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/build/_deps/googletest-src/googletest/include",
                 "${workspaceFolder}/build/_deps/googletest-src/googlemock/include"
@@ -17,6 +18,7 @@
             "intelliSenseMode": "macos-clang-x64",
             "compilerArgs": [
                 "-std=c++17",
+                "-I${workspaceFolder}",
                 "-I${workspaceFolder}/include",
                 "-I${workspaceFolder}/build/_deps/googletest-src/googletest/include",
                 "-I${workspaceFolder}/build/_deps/googletest-src/googlemock/include"
