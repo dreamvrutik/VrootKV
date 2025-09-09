@@ -52,14 +52,17 @@ The VrootKV architecture is composed of several distinct but interconnected comp
 3.  Run CMake and build the project:
 
     ```bash
-    cmake ..
-    make
+    cd ~/Desktop/Projects/VrootKV
+    rm -rf build
+    cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
     ```
 
-### Testing
+4.  Continued development - Build everything (incremental)
+    ```bash
+    cmake --build build -j
+    ```
 
-To run the tests, execute the following command from the `build` directory:
-
-```bash
-ctest
-```
+5.  Run tests
+    ```bash
+    ctest --test-dir build --output-on-failure -j
+    ```
