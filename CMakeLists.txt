@@ -1,13 +1,6 @@
 # Define the minimum version of CMake required.
 cmake_minimum_required(VERSION 3.14)
 
-# Define the project name and specify C++ as the language.
-project(VrootKV CXX)
-
-# Set the C and CXX compilers to clang.
-set(CMAKE_C_COMPILER /usr/bin/clang)
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
-
 # Set the C++ standard to C++17 for the entire project.
 set(CMAKE_CXX_STANDARD 17)
 # Enforce the standard, causing CMake to fail at configure time if the
