@@ -9,10 +9,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable the CTest testing framework for the project.
 # This must be called in the top-level CMakeLists.txt.
-enable_testing()
+include(CTest)
+if(BUILD_TESTING)
+    enable_testing()
+endif()
 
 # Code Coverage
-option(ENABLE_COVERAGE "Enable code coverage" OFF)
+option(ENABLE_COVERAGE "Enable code coverage" ON)
 if(ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         message(STATUS "Code coverage is enabled")
@@ -42,7 +45,9 @@ endif()
 # Add the source and test directories to the build.
 # CMake will process the CMakeLists.txt file in each of these directories.
 add_subdirectory(src)
-add_subdirectory(tests)
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 if(ENABLE_COVERAGE)
     add_custom_target(coverage
