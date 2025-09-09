@@ -1,0 +1,138 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ "**" ]
+
+# Cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CTEST_OUTPUT_ON_FAILURE: 1
+
+jobs:
+  build-test:
+    name: Build & Test (Debug)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Configure (Debug)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Run tests
+        run: ctest --test-dir build -j
+
+  asan:
+    name: AddressSanitizer
+    runs-on: ubuntu-latest
+    env:
+      ASAN_OPTIONS: "fast_unwind_on_malloc=0:detect_leaks=1:strict_string_checks=1:check_initialization_order=1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Configure (ASAN)
+        run: |
+          cmake -S . -B build-asan -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DENABLE_ASAN=ON
+
+      - name: Build
+        run: cmake --build build-asan -j
+
+      - name: Run tests (ASAN)
+        run: ctest --test-dir build-asan -j
+
+  tsan:
+    name: ThreadSanitizer
+    runs-on: ubuntu-latest
+    env:
+      TSAN_OPTIONS: "halt_on_error=1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Configure (TSAN)
+        run: |
+          cmake -S . -B build-tsan -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DENABLE_TSAN=ON
+
+      - name: Build
+        run: cmake --build build-tsan -j
+
+      - name: Run tests (TSAN)
+        run: ctest --test-dir build-tsan -j
+
+  coverage:
+    name: Coverage (macOS + llvm-cov)
+    runs-on: macos-latest
+    # Set your minimum acceptable line coverage here (percentage)
+    env:
+      COVERAGE_MIN: "75.0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure tools
+        run: |
+          brew update
+          brew install ninja jq || true
+          # Xcode provides llvm-cov/llvm-profdata via xcrun; brew llvm not required
+
+      - name: Configure (coverage)
+        run: |
+          cmake -S . -B build-coverage -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DENABLE_COVERAGE=ON
+
+      - name: Build
+        run: cmake --build build-coverage -j
+
+      - name: Generate coverage report (HTML + profdata)
+        run: cmake --build build-coverage --target coverage
+
+      - name: Enforce coverage threshold
+        shell: bash
+        run: |
+          PROF=build-coverage/coverage_report/coverage.profdata
+          BIN=build-coverage/tests/run_tests
+          SRC=src
+          # Extract total line coverage percent from llvm-cov export JSON
+          TOTAL=$(xcrun llvm-cov export -instr-profile="$PROF" "$BIN" "$SRC" | jq -r '.data[0].totals.lines.percent')
+          echo "Total line coverage: $TOTAL% (min required: ${COVERAGE_MIN}%)"
+          awk -v total="$TOTAL" -v min="${COVERAGE_MIN}" 'BEGIN {
+            if (total+0 < min+0) { exit 1 } else { exit 0 }
+          }'
+
+      - name: Upload coverage artifact (HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: build-coverage/coverage_report/coverage.html
+          if-no-files-found: error
