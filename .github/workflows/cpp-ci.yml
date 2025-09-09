@@ -29,7 +29,7 @@ jobs:
 
       - name: Configure (Debug)
         run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=OFF
 
       - name: Build
         run: cmake --build build -j
@@ -55,7 +55,8 @@ jobs:
         run: |
           cmake -S . -B build-asan -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DENABLE_ASAN=ON
+            -DENABLE_ASAN=ON \
+            -DENABLE_COVERAGE=OFF
 
       - name: Build
         run: cmake --build build-asan -j
@@ -81,7 +82,8 @@ jobs:
         run: |
           cmake -S . -B build-tsan -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DENABLE_TSAN=ON
+            -DENABLE_TSAN=ON \
+            -DENABLE_COVERAGE=OFF
 
       - name: Build
         run: cmake --build build-tsan -j

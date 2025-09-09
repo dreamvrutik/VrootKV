@@ -41,5 +41,7 @@
 *.dwo
 
 build/
+build-asan/
+build-tsan/
 .DS_Store
 Testing/
