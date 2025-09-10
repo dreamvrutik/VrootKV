@@ -66,3 +66,21 @@ The VrootKV architecture is composed of several distinct but interconnected comp
     ```bash
     ctest --test-dir build --output-on-failure -j
     ```
+
+
+## Project Structure
+
+The project is organized into the following directories:
+
+*   `src`: Contains the source code for the storage engine.
+*   `include`: Contains the public header files.
+*   `tests`: Contains the unit tests.
+*   `docs`: Contains the design documents.
+
+## Contributing
+
+Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for details.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
